@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
 
 function ChatPage() {
   const [user, setUser] = useState("");
   const [userJoin, setUserJoin] = useState(false);
-  const { sendMessage, lastMessage } = useWebSocket("ws://localhost:5001");
-  const [message, setMessage] = useState("");
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
+    "ws://localhost:5001"
+  );
+  const [message, setMessage] = useState(""); //input Type a message...
+  const [messages, setMessages] = useState([]);
 
   const handleClick = () => {
-    sendMessage(message);
-    setMessage("");
+    if (readyState === 1) {
+      // 1: OPEN
+      sendMessage(`${user}: ${message}`);
+      setMessage("");
+    } else {
+      console.error("WebSocket bağlantısı açık değil.");
+    }
   };
 
   const userJoined = (e) => {
@@ -22,8 +30,25 @@ function ChatPage() {
   const exitChat = () => {
     setUser("");
     setUserJoin(false);
+    setMessages([]); //çıkışta mesajları temizle
   };
-  console.log(lastMessage);
+  useEffect(() => {
+    if (lastMessage !== null) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // FileReader ile Blob'ı string'e dönüştür
+        const messageText = reader.result;
+        console.log("Dönüştürülmüş mesaj:", messageText);
+        setMessages((prev) => [...prev, messageText]);
+      };
+      // Eğer lastMessage.data bir Blob ise, FileReader ile okuma yap
+      if (lastMessage.data instanceof Blob) {
+        reader.readAsText(lastMessage.data);
+      } else {
+        setMessages((prev) => [...prev, lastMessage.data]);
+      }
+    }
+  }, [lastMessage]);
 
   return (
     <div className="app flex justify-center pt-40">
@@ -68,25 +93,20 @@ function ChatPage() {
           </header>
 
           <div className="messages flex-1 overflow-auto bg-gray-200 p-4">
-            <div className="update text-center italic py-2">
-              {user} is joined the conversation
-            </div>
-
-            <div className="message my-message flex justify-end mb-4">
-              <div className="max-w-[80%] bg-white shadow p-2 rounded">
-                <div className="name text-sm text-gray-500 mb-1">{user}</div>
-                <div className="text break-words">
-                  {lastMessage ? lastMessage.data : "Henüz bir mesaj yok."}
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`message ${
+                  msg.startsWith(user) ? "my-message" : "other-message"
+                } flex ${
+                  msg.startsWith(user) ? "justify-end" : "justify-start"
+                } mb-4`}
+              >
+                <div className="max-w-[80%] bg-white shadow p-2 rounded">
+                  <div className="text break-words">{msg}</div>
                 </div>
               </div>
-            </div>
-
-            <div className="message other-message flex justify-start mb-4">
-              <div className="max-w-[80%] bg-white shadow p-2 rounded">
-                <div className="name text-sm text-gray-500 mb-1">Abc</div>
-                <div className="text break-words">Hello</div>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="typebox bg-[#8e72e1] flex items-center h-[50px] border-t">

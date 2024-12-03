@@ -1,8 +1,10 @@
-# React + Vite
+# React + Vite,Node.js ve WebSocket teknolojileri kullanılarak,
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Real-Time UCM(User Connection Monitoring) uygulaması yapılması hedeflenmiştir. chat kısmında farklı sekmelere açılan penceler üzerinden kullanıcılar isim bilgileri ile giriş yapıp sunucu üzerinde haberleşebilirler.
 
-Currently, two official plugins are available:
+Sunucu üzerinde broadcast işlemi yapılarak, WebSocket sunucusunda mesajları yayınlanması sağlanmıştır. istemciden gelecek mesajı diğer tüm bağlı istemcilere iletecek bir yayın mekanizması.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+daha sonra uygulamada Dashboard üzerinden Chart.js veya Recharts kullanılarak
+-Aktif kullanıcı sayısı
+-Kullanıcıların bağlantılarını izlemek için canlı bir log sistemi
+-kişisel kullanıcı bilgileri (IP adresi,baglantı süresi vb.)
