@@ -9,7 +9,7 @@ function ChatPage() {
   );
   const [message, setMessage] = useState(""); //input Type a message...
   const [messages, setMessages] = useState([]);
-
+  const [count, setCount] = useState(0);
   const handleClick = () => {
     if (readyState === 1) {
       // 1: OPEN
@@ -34,20 +34,27 @@ function ChatPage() {
   };
   useEffect(() => {
     if (lastMessage !== null) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // FileReader ile Blob'ı string'e dönüştür
-        const messageText = reader.result;
-        console.log("Dönüştürülmüş mesaj:", messageText);
-        setMessages((prev) => [...prev, messageText]);
-      };
-      // Eğer lastMessage.data bir Blob ise, FileReader ile okuma yap
-      if (lastMessage.data instanceof Blob) {
-        reader.readAsText(lastMessage.data);
-      } else {
-        setMessages((prev) => [...prev, lastMessage.data]);
+      const data = lastMessage.data;
+
+      try {
+        const parsedData = JSON.parse(data);
+
+        switch (parsedData.type) {
+          case "update":
+            setCount(parsedData.count);
+
+            break;
+          case "message":
+            setMessages((prev) => [...prev, parsedData.text]);
+            break;
+          default:
+            console.warn("Bilinmeyen mesaj tipi:", parsedData.type);
+        }
+      } catch (error) {
+        console.error("Mesaj JSON formatında değil:", data, error);
       }
     }
+    console.log(count);
   }, [lastMessage]);
 
   return (

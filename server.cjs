@@ -1,45 +1,37 @@
 const http = require("http");
 const WebSocket = require("ws");
 
-//http sunucusu oluşturma
 const server = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("WebSocket sunucu çalışıyor");
 });
 
-//web socket sunucusu başlatma
 const wss = new WebSocket.Server({ server });
-//sunucuya bağlı olan tüm istemcilere mesaj yayınlama(broadcast işlemi)
-function broadcast(data, ws) {
+let clients = new Set();
+function broadcast(data) {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(data); //mesajı bağlı istemciye gönder
+      client.send(data);
     }
   });
 }
 
-//websocket baglantısını dinle
-
 wss.on("connection", (ws) => {
-  console.log("Yeni bir istemci bağlandı.");
-
-  //mesaj alındığında
   ws.on("message", (message) => {
-    const messageString = message.toString();
-    console.log("alınan mesaj", messageString);
+    clients.add(ws);
+    const userCount = { type: "update", count: clients.size };
 
-    //mesajı tüm istemcilere yayınla
-    broadcast(message, ws);
+    broadcast(JSON.stringify(userCount));
+
+    const chatMessage = { type: "message", text: message.toString() };
+    broadcast(JSON.stringify(chatMessage));
   });
-
-  //baglantı kapandığında
-
   ws.on("close", () => {
-    console.log("Bir istemci baplantıyı kapattı");
+    clients.delete(ws);
+    const userCount = { type: "update", count: clients.size };
+    broadcast(JSON.stringify(userCount));
   });
 });
-
-// HTTP sunucusunu başlat
 
 const PORT = 5001;
 
