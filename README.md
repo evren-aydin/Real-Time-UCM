@@ -4,7 +4,7 @@ Real-Time UCM(User Connection Monitoring) uygulaması yapılması hedeflenmişti
 
 Sunucu üzerinde broadcast işlemi yapılarak, WebSocket sunucusunda mesajları yayınlanması sağlanmıştır. istemciden gelecek mesajı diğer tüm bağlı istemcilere iletecek bir yayın mekanizması.
 
-daha sonra uygulamada Dashboard üzerinden Chart.js veya Recharts kullanılarak
+daha sonra uygulamada Dashboard üzerinden Chart.js kullanılarak
 -Aktif kullanıcı sayısı
 -Kullanıcıların bağlantılarını izlemek için canlı bir log sistemi
--kişisel kullanıcı bilgileri (IP adresi,baglantı süresi vb.)
+-kişisel kullanıcı bilgileri (IP adresi,baglantı süresi)
