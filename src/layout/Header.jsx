@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 function Header() {
   return (
     <>
-      <header className="w-[350px] h-[950px] bg-slate-800">
+      <header className="w-[350px] h-[950px] bg-slate-700">
         <nav className="text-white font-bold text-2xl flex flex-col items-start ml-12 gap-20 mt-28 ">
           <div>
             <FontAwesomeIcon

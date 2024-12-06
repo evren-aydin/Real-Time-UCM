@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
-import useWebSocket from "react-use-websocket";
+import { useState } from "react";
 
-function ChatPage() {
+function ChatPage({ sendMessage, readyState, messages, setMessages }) {
   const [user, setUser] = useState("");
   const [userJoin, setUserJoin] = useState(false);
-  const { sendMessage, lastMessage, readyState } = useWebSocket(
-    "ws://localhost:5001"
-  );
   const [message, setMessage] = useState(""); //input Type a message...
-  const [messages, setMessages] = useState([]);
-  const [count, setCount] = useState(0);
+
   const handleClick = () => {
     if (readyState === 1) {
-      // 1: OPEN
       sendMessage(`${user}: ${message}`);
       setMessage("");
     } else {
@@ -32,30 +26,6 @@ function ChatPage() {
     setUserJoin(false);
     setMessages([]); //çıkışta mesajları temizle
   };
-  useEffect(() => {
-    if (lastMessage !== null) {
-      const data = lastMessage.data;
-
-      try {
-        const parsedData = JSON.parse(data);
-
-        switch (parsedData.type) {
-          case "update":
-            setCount(parsedData.count);
-
-            break;
-          case "message":
-            setMessages((prev) => [...prev, parsedData.text]);
-            break;
-          default:
-            console.warn("Bilinmeyen mesaj tipi:", parsedData.type);
-        }
-      } catch (error) {
-        console.error("Mesaj JSON formatında değil:", data, error);
-      }
-    }
-    console.log(count);
-  }, [lastMessage]);
 
   return (
     <div className="app flex justify-center pt-40">
@@ -99,7 +69,7 @@ function ChatPage() {
             </button>
           </header>
 
-          <div className="messages flex-1 overflow-auto bg-gray-200 p-4">
+          <div className="messages flex-1 overflow-auto bg-gray-100 p-4">
             {messages.map((msg, index) => (
               <div
                 key={index}

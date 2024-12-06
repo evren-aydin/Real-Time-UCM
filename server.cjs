@@ -16,19 +16,43 @@ function broadcast(data) {
   });
 }
 
-wss.on("connection", (ws) => {
+wss.on("connection", (ws, req) => {
+  const ip = req.socket.remoteAddress;
+  const startTime = Date.now();
+
+  const client = { ws, ip, startTime };
+  clients.add(client);
+
+  const userCount = {
+    type: "update",
+    count: clients.size,
+    users: Array.from(clients).map((client) => ({
+      ip: client.ip,
+      connectionTime: `${Math.floor(
+        (Date.now() - client.startTime) / 1000
+      )} saniye`,
+    })),
+  };
+  broadcast(JSON.stringify(userCount));
+
   ws.on("message", (message) => {
-    clients.add(ws);
-    const userCount = { type: "update", count: clients.size };
-
-    broadcast(JSON.stringify(userCount));
-
     const chatMessage = { type: "message", text: message.toString() };
     broadcast(JSON.stringify(chatMessage));
   });
+
   ws.on("close", () => {
-    clients.delete(ws);
-    const userCount = { type: "update", count: clients.size };
+    clients.delete(client);
+    console.log("kullanıcı sayısı:", clients.size);
+    const userCount = {
+      type: "update",
+      count: clients.size,
+      users: Array.from(clients).map((client) => ({
+        ip: client.ip,
+        connectionTime: `${Math.floor(
+          (Date.now() - client.startTime) / 1000
+        )} saniye`,
+      })),
+    };
     broadcast(JSON.stringify(userCount));
   });
 });
